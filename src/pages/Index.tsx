@@ -7,6 +7,8 @@ import { DailyReport } from "@/components/DailyReport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { BlitzPanel } from "@/components/BlitzPanel";
+import { Button } from "@/components/ui/button";
 
 const STORAGE_KEY = "promodoro-tasks";
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
@@ -14,6 +16,7 @@ const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [isBlitzMode, setIsBlitzMode] = useState(false);
   const { toast } = useToast();
 
   // Load tasks from localStorage
@@ -120,7 +123,10 @@ const Index = () => {
 
         {/* Task Input */}
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Add New Task</h2>
+            <Button onClick={() => setIsBlitzMode(true)}>Blitz now</Button>
+          </div>
           <TaskInput onAddTask={addTask} categories={CATEGORIES} />
         </div>
 
@@ -173,6 +179,13 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+      {isBlitzMode && (
+        <BlitzPanel
+          tasks={activeTasks}
+          onClose={() => setIsBlitzMode(false)}
+          onTaskComplete={handleTimerComplete}
+        />
+      )}
     </div>
   );
 };
