@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Task } from "@/types/task";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskItem } from "@/components/TaskItem";
-import { FocusTimer } from "@/components/FocusTimer";
+import { FocusTimer, TimerMode } from "@/components/FocusTimer";
 import { DailyReport } from "@/components/DailyReport";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +15,7 @@ const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [timerMode, setTimerMode] = useState<TimerMode>("Pomodoro");
   const { toast } = useToast();
 
   // Load tasks from localStorage
@@ -109,12 +111,35 @@ const Index = () => {
           <p className="text-muted-foreground">Your daily task and focus coach</p>
         </div>
 
+        {/* Timer Mode Selector */}
+        <div className="flex justify-center gap-2">
+          <Button
+            variant={timerMode === "Pomodoro" ? "default" : "outline"}
+            onClick={() => setTimerMode("Pomodoro")}
+          >
+            Pomodoro
+          </Button>
+          <Button
+            variant={timerMode === "EST" ? "default" : "outline"}
+            onClick={() => setTimerMode("EST")}
+          >
+            EST Countdown
+          </Button>
+          <Button
+            variant={timerMode === "Stopwatch" ? "default" : "outline"}
+            onClick={() => setTimerMode("Stopwatch")}
+          >
+            Stopwatch
+          </Button>
+        </div>
+
         {/* Active Timer */}
         {activeTask && (
           <FocusTimer
             activeTask={activeTask}
             onTimerComplete={handleTimerComplete}
             onStop={() => setActiveTaskId(null)}
+            mode={timerMode}
           />
         )}
 
