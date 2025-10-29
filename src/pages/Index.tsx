@@ -3,68 +3,127 @@ import { Task } from "@/types/task";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskItem } from "@/components/TaskItem";
 import { FocusTimer } from "@/components/FocusTimer";
+import LogoutButton from "@/components/LogoutButton";
 import { DailyReport } from "@/components/DailyReport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const STORAGE_KEY = "promodoro-tasks";
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Load tasks from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setTasks(JSON.parse(stored));
+    if (user) {
+      fetchTasks();
     }
-  }, []);
+  }, [user]);
 
-  // Save tasks to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
+  const fetchTasks = async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  const addTask = (title: string, estimatedMinutes: number, category: string) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title,
-      estimatedMinutes,
-      actualMinutes: 0,
-      completed: false,
-      category,
-      createdAt: new Date().toISOString(),
-    };
-    setTasks([newTask, ...tasks]);
-    toast({
-      title: "Task added",
-      description: `"${title}" has been added to your list`,
-    });
+    if (error) {
+      console.error("Error fetching tasks:", error);
+      toast({
+        title: "Error fetching tasks",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      const formattedTasks = data.map((task: any) => ({
+        ...task,
+        estimatedMinutes: task.estimated_minutes,
+        actualMinutes: task.actual_minutes,
+        createdAt: task.created_at,
+        completedAt: task.completed_at,
+      }));
+      setTasks(formattedTasks || []);
+    }
   };
 
-  const toggleComplete = (id: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              completed: !task.completed,
-              completedAt: !task.completed ? new Date().toISOString() : undefined,
-            }
-          : task
-      )
-    );
-    
-    const task = tasks.find((t) => t.id === id);
-    if (task && !task.completed) {
+  const addTask = async (title: string, estimatedMinutes: number, category: string) => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        title,
+        estimated_minutes: estimatedMinutes,
+        category,
+        user_id: user.id,
+      })
+      .select();
+
+    if (error) {
+      console.error("Error adding task:", error);
       toast({
-        title: "Task completed! 🎉",
-        description: `Great work on "${task.title}"`,
+        title: "Error adding task",
+        description: error.message,
+        variant: "destructive",
       });
+    } else if (data) {
+      const newTask = {
+        ...data[0],
+        estimatedMinutes: data[0].estimated_minutes,
+        actualMinutes: data[0].actual_minutes,
+        createdAt: data[0].created_at,
+        completedAt: data[0].completed_at,
+      };
+      setTasks([newTask, ...tasks]);
+      toast({
+        title: "Task added",
+        description: `"${title}" has been added to your list`,
+      });
+    }
+  };
+
+  const toggleComplete = async (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const updatedCompleted = !task.completed;
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({
+        completed: updatedCompleted,
+        completed_at: updatedCompleted ? new Date().toISOString() : null,
+      })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "Error updating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      const updatedTask = {
+        ...data[0],
+        estimatedMinutes: data[0].estimated_minutes,
+        actualMinutes: data[0].actual_minutes,
+        createdAt: data[0].created_at,
+        completedAt: data[0].completed_at,
+      };
+      setTasks(tasks.map((t) => (t.id === id ? updatedTask : t)));
+      if (updatedCompleted) {
+        toast({
+          title: "Task completed! 🎉",
+          description: `Great work on "${task.title}"`,
+        });
+      }
     }
   };
 
@@ -77,20 +136,38 @@ const Index = () => {
     });
   };
 
-  const handleTimerComplete = (taskId: string, minutesWorked: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === taskId
-          ? { ...task, actualMinutes: task.actualMinutes + minutesWorked }
-          : task
-      )
-    );
-    
+  const handleTimerComplete = async (taskId: string, minutesWorked: number) => {
     const task = tasks.find((t) => t.id === taskId);
-    toast({
-      title: "Focus session complete! 🍅",
-      description: `Added ${minutesWorked.toFixed(0)} minutes to "${task?.title}"`,
-    });
+    if (!task) return;
+
+    const newActualMinutes = task.actualMinutes + minutesWorked;
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({ actual_minutes: newActualMinutes })
+      .eq("id", taskId)
+      .select();
+
+    if (error) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "Error updating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
+      const updatedTask = {
+        ...data[0],
+        estimatedMinutes: data[0].estimated_minutes,
+        actualMinutes: data[0].actual_minutes,
+        createdAt: data[0].created_at,
+        completedAt: data[0].completed_at,
+      };
+      setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
+      toast({
+        title: "Focus session complete! 🍅",
+        description: `Added ${minutesWorked.toFixed(0)} minutes to "${task?.title}"`,
+      });
+    }
   };
 
   const activeTask = tasks.find((t) => t.id === activeTaskId);
@@ -101,12 +178,15 @@ const Index = () => {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-3">
-            <Timer className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Promodoro</h1>
+        <div className="flex justify-between items-center">
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-3">
+              <Timer className="h-8 w-8 text-primary" />
+              <h1 className="text-4xl font-bold">Promodoro</h1>
+            </div>
+            <p className="text-muted-foreground">Your daily task and focus coach</p>
           </div>
-          <p className="text-muted-foreground">Your daily task and focus coach</p>
+          <LogoutButton />
         </div>
 
         {/* Active Timer */}
