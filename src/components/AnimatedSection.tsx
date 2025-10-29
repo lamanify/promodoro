@@ -10,7 +10,6 @@ interface AnimatedSectionProps {
 const AnimatedSection: React.FC<AnimatedSectionProps> = ({ children, className }) => {
   const { ref, inView } = useIntersectionObserver({
     threshold: 0.1,
-    triggerOnce: true,
   });
 
   return (

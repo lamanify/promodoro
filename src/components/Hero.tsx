@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative text-center overflow-hidden py-20">
       {/* Background Gradients */}
@@ -31,7 +33,10 @@ const Hero: React.FC = () => {
         <p className="text-lg md:text-xl text-muted-foreground mt-4 max-w-3xl mx-auto">
           Promodoro isn't just another task tracker. It's your personal focus system that fuses your daily tasks with the proven Pomodoro technique. Stop the multitasking chaos and experience the power of deep, uninterrupted work.
         </p>
-        <button className="bg-primary text-primary-foreground px-8 py-4 rounded-full font-semibold mt-8">
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="bg-primary text-primary-foreground px-8 py-4 rounded-full font-semibold mt-8"
+        >
           Start Your First Focused Session
         </button>
       </div>
