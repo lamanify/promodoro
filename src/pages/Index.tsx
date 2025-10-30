@@ -6,6 +6,7 @@ import { FocusTimer } from "@/components/FocusTimer";
 import { DailyReport } from "@/components/DailyReport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Timer } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const STORAGE_KEY = "promodoro-tasks";
@@ -105,6 +106,9 @@ const Index = () => {
           <div className="flex items-center justify-center gap-3">
             <Timer className="h-8 w-8 text-primary" />
             <h1 className="text-4xl font-bold">Promodoro</h1>
+            <Link to="/tasks" className="text-sm text-muted-foreground hover:text-primary">
+              Task List
+            </Link>
           </div>
           <p className="text-muted-foreground">Your daily task and focus coach</p>
         </div>
