@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 const STORAGE_KEY = "promodoro-tasks";
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 
-const Index = () => {
+const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [isBlitzMode, setIsBlitzMode] = useState(false);
@@ -190,4 +190,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Dashboard;
