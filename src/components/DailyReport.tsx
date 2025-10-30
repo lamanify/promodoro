@@ -67,7 +67,7 @@ export const DailyReport = ({ tasks }: DailyReportProps) => {
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Difference:</span>
           <span className={`font-medium ${isOverEstimate ? 'text-destructive' : 'text-success'}`}>
-            {isOverEstimate ? '+' : '-'}{Math.abs(totalActualMinutes - totalEstimatedMinutes / 60).toFixed(1)}h
+            {isOverEstimate ? '+' : '-'}{Math.abs((totalActualMinutes - totalEstimatedMinutes) / 60).toFixed(1)}h
           </span>
         </div>
       </div>
