@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Play, Pause, SkipForward, Coffee } from "lucide-react";
+import { Play, Pause, SkipForward, Coffee, ExternalLink } from "lucide-react";
 import { Task } from "@/types/task";
 
 interface FocusTimerProps {
@@ -138,6 +138,19 @@ export const FocusTimer = ({ activeTask, onTimerComplete, onStop }: FocusTimerPr
             <SkipForward className="h-5 w-5 mr-2" />
             {isBreak ? "Skip Break" : "End Session"}
           </Button>
+            <Button
+                onClick={() => {
+                const url = `/timer-popup?taskId=${activeTask.id}&taskTitle=${encodeURIComponent(
+                    activeTask.title
+                )}&time=${timeLeft}&running=${isRunning}&break=${isBreak}`;
+                window.open(url, "Timer", "width=400,height=400");
+                onStop();
+                }}
+                size="lg"
+                variant="outline"
+            >
+                <ExternalLink className="h-5 w-5" />
+            </Button>
         </div>
       </div>
     </Card>
