@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BlitzPanel } from "@/components/BlitzPanel";
+import { LogoutButton } from "@/components/LogoutButton";
 
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 
