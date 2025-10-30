@@ -3,22 +3,22 @@ import { Link } from "react-router-dom";
 import { Task } from "@/types/task";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskItem } from "@/components/TaskItem";
-import { FocusTimer } from "@/components/FocusTimer";
-import LogoutButton from "@/components/LogoutButton";
+import { FocusTimer, TimerMode } from "@/components/FocusTimer";
 import { DailyReport } from "@/components/DailyReport";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BlitzPanel } from "@/components/BlitzPanel";
-import { Button } from "@/components/ui/button";
 
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [timerMode, setTimerMode] = useState<TimerMode>("Pomodoro");
   const [isBlitzMode, setIsBlitzMode] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -193,12 +193,35 @@ const Dashboard = () => {
           <LogoutButton />
         </div>
 
+        {/* Timer Mode Selector */}
+        <div className="flex justify-center gap-2">
+          <Button
+            variant={timerMode === "Pomodoro" ? "default" : "outline"}
+            onClick={() => setTimerMode("Pomodoro")}
+          >
+            Pomodoro
+          </Button>
+          <Button
+            variant={timerMode === "EST" ? "default" : "outline"}
+            onClick={() => setTimerMode("EST")}
+          >
+            EST Countdown
+          </Button>
+          <Button
+            variant={timerMode === "Stopwatch" ? "default" : "outline"}
+            onClick={() => setTimerMode("Stopwatch")}
+          >
+            Stopwatch
+          </Button>
+        </div>
+
         {/* Active Timer */}
         {activeTask && (
           <FocusTimer
             activeTask={activeTask}
             onTimerComplete={handleTimerComplete}
             onStop={() => setActiveTaskId(null)}
+            mode={timerMode}
           />
         )}
 
