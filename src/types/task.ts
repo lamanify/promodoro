@@ -1,8 +1,9 @@
 export interface Task {
   id: string;
-  title: string;
+  title:string;
   estimatedMinutes: number;
   actualMinutes: number;
+  breakMinutes?: number;
   completed: boolean;
   category: string;
   createdAt: string;

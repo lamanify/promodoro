@@ -5,23 +5,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 
 interface TaskInputProps {
-  onAddTask: (title: string, estimatedMinutes: number, category: string) => void;
+  onAddTask: (title: string, estimatedMinutes: number, category: string, breakMinutes: number) => void;
   categories: string[];
 }
 
 export const TaskInput = ({ onAddTask, categories }: TaskInputProps) => {
   const [title, setTitle] = useState("");
   const [estimatedTime, setEstimatedTime] = useState("");
+  const [breakTime, setBreakTime] = useState("");
   const [category, setCategory] = useState(categories[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !estimatedTime) return;
 
-    const minutes = parseFloat(estimatedTime) * 60;
-    onAddTask(title.trim(), minutes, category);
+    const estimatedMinutes = parseFloat(estimatedTime) * 60;
+    const breakMinutes = parseFloat(breakTime) * 60 || 0;
+    onAddTask(title.trim(), estimatedMinutes, category, breakMinutes);
     setTitle("");
     setEstimatedTime("");
+    setBreakTime("");
   };
 
   return (
@@ -40,6 +43,15 @@ export const TaskInput = ({ onAddTask, categories }: TaskInputProps) => {
           placeholder="Est. hours"
           value={estimatedTime}
           onChange={(e) => setEstimatedTime(e.target.value)}
+          className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+        />
+        <Input
+          type="number"
+          step="0.25"
+          min="0"
+          placeholder="Break (hrs)"
+          value={breakTime}
+          onChange={(e) => setBreakTime(e.target.value)}
           className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
         />
         <Select value={category} onValueChange={setCategory}>

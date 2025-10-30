@@ -29,12 +29,13 @@ const Index = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string, estimatedMinutes: number, category: string) => {
+  const addTask = (title: string, estimatedMinutes: number, category: string, breakMinutes: number) => {
     const newTask: Task = {
       id: Date.now().toString(),
       title,
       estimatedMinutes,
       actualMinutes: 0,
+      breakMinutes,
       completed: false,
       category,
       createdAt: new Date().toISOString(),

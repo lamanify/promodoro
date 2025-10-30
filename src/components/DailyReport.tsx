@@ -1,6 +1,8 @@
 import { Task } from "@/types/task";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { CheckCircle2, Clock, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 interface DailyReportProps {
   tasks: Task[];
@@ -10,19 +12,26 @@ export const DailyReport = ({ tasks }: DailyReportProps) => {
   const completedTasks = tasks.filter((t) => t.completed);
   const totalEstimatedMinutes = completedTasks.reduce((sum, t) => sum + t.estimatedMinutes, 0);
   const totalActualMinutes = completedTasks.reduce((sum, t) => sum + t.actualMinutes, 0);
-  
+
   const estimatedHours = (totalEstimatedMinutes / 60).toFixed(1);
   const actualHours = (totalActualMinutes / 60).toFixed(1);
-  const accuracy = totalEstimatedMinutes > 0 
-    ? ((totalActualMinutes / totalEstimatedMinutes) * 100).toFixed(0)
-    : 0;
+  const accuracy =
+    totalEstimatedMinutes > 0 ? ((totalActualMinutes / totalEstimatedMinutes) * 100).toFixed(0) : 0;
 
   const isOverEstimate = totalActualMinutes > totalEstimatedMinutes;
 
   return (
     <Card className="p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Today's Summary</h2>
-      
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Today's Summary</h2>
+        <Button asChild variant="link" className="text-sm">
+          <Link to="/reports/productivity">
+            View Full Report
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Link>
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
