@@ -32,7 +32,7 @@ const AuthPage = () => {
         password,
       });
       if (error) throw error;
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       setError(error.error_description || error.message);
     } finally {
