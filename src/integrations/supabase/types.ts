@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tasks: {
+        Row: {
+          actual_minutes: number
+          category: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          estimated_minutes: number
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          actual_minutes?: number
+          category?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          actual_minutes?: number
+          category?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
