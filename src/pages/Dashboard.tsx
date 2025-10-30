@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Task } from "@/types/task";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskItem } from "@/components/TaskItem";
@@ -10,12 +11,15 @@ import { Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { BlitzPanel } from "@/components/BlitzPanel";
+import { Button } from "@/components/ui/button";
 
 const CATEGORIES = ["Work", "Personal", "Learning", "Projects"];
 
-const Index = () => {
+const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [isBlitzMode, setIsBlitzMode] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -200,16 +204,22 @@ const Index = () => {
 
         {/* Task Input */}
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Add New Task</h2>
+            <Button onClick={() => setIsBlitzMode(true)}>Blitz now</Button>
+          </div>
           <TaskInput onAddTask={addTask} categories={CATEGORIES} />
         </div>
 
         {/* Tasks and Report */}
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary">
+          <TabsList className="grid w-full grid-cols-4 bg-secondary">
             <TabsTrigger value="active">Active ({activeTasks.length})</TabsTrigger>
             <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>
             <TabsTrigger value="report">Report</TabsTrigger>
+            <Link to="/reports" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              Time Spent
+            </Link>
           </TabsList>
           
           <TabsContent value="active" className="space-y-3 mt-6">
@@ -253,8 +263,15 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+      {isBlitzMode && (
+        <BlitzPanel
+          tasks={activeTasks}
+          onClose={() => setIsBlitzMode(false)}
+          onTaskComplete={handleTimerComplete}
+        />
+      )}
     </div>
   );
 };
 
-export default Index;
+export default Dashboard;
